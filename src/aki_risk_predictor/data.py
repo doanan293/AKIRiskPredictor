@@ -1,6 +1,7 @@
 """Turn the JSON extract into one feature row per ICU stay."""
 
 import json
+from dataclasses import dataclass
 from pathlib import Path
 from typing import cast
 
@@ -67,3 +68,16 @@ def load_stays(path: Path) -> pd.DataFrame:
 def features(frame: pd.DataFrame) -> pd.DataFrame:
     """The model inputs: everything except identifiers and the label."""
     return frame.drop(columns=[c for c in ("subjectId", LABEL) if c in frame.columns])
+
+
+@dataclass(frozen=True)
+class Cohort:
+    """Model inputs, labels and patient ids of labelled stays, aligned by row."""
+
+    X: pd.DataFrame
+    y: pd.Series
+    groups: pd.Series
+
+    @classmethod
+    def from_stays(cls, frame: pd.DataFrame) -> "Cohort":
+        return cls(X=features(frame), y=frame[LABEL], groups=frame["subjectId"])
