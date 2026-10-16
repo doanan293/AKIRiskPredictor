@@ -6,7 +6,23 @@ Predicts acute kidney injury (AKI) within seven days of ICU admission for adults
 
 ## Results
 
-The cohort has 970 labelled ICU stays from 714 patients, 38.9 % with AKI. A holdout of 139 stays was split off by patient, so no patient appears in both training and evaluation. Every model was tuned with Optuna's quick budget and cross-validated on the training split before a single scoring pass on the holdout ([results/holdout.md](results/holdout.md)):
+TabPFN-3.5 is the strongest model in this study. It has the best cross-validated AUC of the nine classifiers (0.813) and the highest specificity, and it needed no hyperparameter tuning.
+
+The cohort has 970 labelled ICU stays from 714 patients, 38.9 % with AKI. Models are compared with 10-fold cross-validation on the training split, grouped by patient so that no patient is in two folds ([results/cv.md](results/cv.md)). Each model except TabPFN was first tuned with Optuna's quick budget:
+
+| model              | AUC mean (SD) over folds   |    f1 |   sensitivity |   specificity |   threshold |
+|:-------------------|:---------------------------|------:|--------------:|--------------:|------------:|
+| TabPFN-3.5         | 0.813 (0.046)              | 0.693 |         0.65  |         0.856 |       0.472 |
+| SVM                | 0.805 (0.054)              | 0.707 |         0.703 |         0.819 |       0.423 |
+| LogisticRegression | 0.800 (0.055)              | 0.694 |         0.687 |         0.813 |       0.415 |
+| AdaBoost           | 0.792 (0.046)              | 0.671 |         0.721 |         0.728 |       0.362 |
+| GaussianNB         | 0.785 (0.052)              | 0.672 |         0.715 |         0.738 |       0.09  |
+| XGBoost            | 0.782 (0.038)              | 0.657 |         0.601 |         0.854 |       0.703 |
+| MLP                | 0.775 (0.050)              | 0.665 |         0.718 |         0.719 |       0.324 |
+| ComplementNB       | 0.773 (0.078)              | 0.671 |         0.74  |         0.705 |       0.472 |
+| LightGBM           | 0.768 (0.039)              | 0.641 |         0.598 |         0.831 |       0.501 |
+
+A holdout of 139 stays from other patients was then scored once, to check that the cross-validation results carry over ([results/holdout.md](results/holdout.md)):
 
 | model              | AUC (95% CI)        |    f1 |   sensitivity |   specificity |
 |:-------------------|:--------------------|------:|--------------:|--------------:|
@@ -20,7 +36,7 @@ The cohort has 970 labelled ICU stays from 714 patients, 38.9 % with AKI. A hold
 | GaussianNB         | 0.796 (0.722-0.868) | 0.649 |         0.685 |         0.729 |
 | LightGBM           | 0.754 (0.677-0.834) | 0.54  |         0.5   |         0.776 |
 
-All confidence intervals overlap, so the holdout alone cannot rank the models. In 10-fold patient-grouped cross-validation ([results/cv.md](results/cv.md)) TabPFN-3.5 leads (0.813), followed by SVM (0.805) and logistic regression (0.800), and the MLP is seventh (0.775). Logistic regression is near the top in both, is the simplest to explain and has no license restriction, so it is the default model for `aki predict`.
+On the holdout TabPFN-3.5 scores 0.819, within 0.02 of the best model, and every confidence interval overlaps. A set of 139 stays is too small to separate the top models, so the ranking above relies on the 10-fold estimate, which uses all 831 training stays. Logistic regression is close behind in both tables, is easy to explain and has no license restriction, so it stays the default for `aki predict`. Set `predict_model: TabPFN-3.5` in the config to predict with TabPFN.
 
 ![ROC curves on the holdout](results/roc_holdout.png)
 
