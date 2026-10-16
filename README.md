@@ -54,7 +54,7 @@ The repository ships a synthetic cohort, so everything runs without access to MI
 
 ```bash
 uv sync
-uv run aki report          # tune, train and evaluate on data/sample, write results/
+uv run aki report          # tune, train and evaluate on data/sample (about 5 minutes on CPU)
 uv run aki predict         # one probability per stay in data/sample/test.json
 ```
 
