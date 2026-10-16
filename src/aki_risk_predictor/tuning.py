@@ -26,7 +26,7 @@ BUDGETS: dict[Budget, dict[str, int]] = {
         "GaussianNB": 1,
         "ComplementNB": 1,
         "MLP": 2,
-        "TabPFN-3-Plus": 0,
+        "TabPFN-3.5": 0,
     },
     "deep": {
         "XGBoost": 200,
@@ -37,7 +37,7 @@ BUDGETS: dict[Budget, dict[str, int]] = {
         "GaussianNB": 2,
         "ComplementNB": 2,
         "MLP": 5,
-        "TabPFN-3-Plus": 0,
+        "TabPFN-3.5": 0,
     },
 }
 

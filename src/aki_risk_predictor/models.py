@@ -1,7 +1,9 @@
 """The nine classifiers compared in the study."""
 
 import importlib
+import os
 from collections.abc import Callable
+from pathlib import Path
 from typing import cast
 
 from lightgbm import LGBMClassifier
@@ -18,7 +20,7 @@ from sklearn.tree import DecisionTreeClassifier
 from xgboost import XGBClassifier
 
 MODEL_NAMES = (
-    "TabPFN-3-Plus",
+    "TabPFN-3.5",
     "XGBoost",
     "LightGBM",
     "LogisticRegression",
@@ -30,8 +32,16 @@ MODEL_NAMES = (
 )
 HIDDEN_LAYERS = {"16": (16,), "32": (32,), "64": (64,), "32_16": (32, 16), "64_32": (64, 32)}
 SEED = 42
+# TabPFN-3.5 weights are non-commercial and stay out of git, in the ignored local-data/ folder
+TABPFN_CHECKPOINT = Path("local-data/tabpfn/tabpfn-v3.5-20260909.safetensors")
 
 Params = dict[str, object]
+
+
+def tabpfn_checkpoint() -> Path | None:
+    """Local TabPFN-3.5 weights, if downloaded (see README). None lets tabpfn fetch them."""
+    path = Path(os.environ.get("TABPFN_MODEL_PATH", TABPFN_CHECKPOINT))
+    return path if path.exists() else None
 
 
 def _tabpfn(params: Params) -> ClassifierMixin:
@@ -40,7 +50,16 @@ def _tabpfn(params: Params) -> ClassifierMixin:
     except ModuleNotFoundError as error:
         msg = "TabPFN is optional. Install it with `uv sync --extra tabpfn`."
         raise ModuleNotFoundError(msg) from error
-    return cast("ClassifierMixin", module.TabPFNClassifier(random_state=SEED, **params))
+    checkpoint = tabpfn_checkpoint()
+    if checkpoint is None:
+        version = module.constants.ModelVersion.V3_5
+        return cast("ClassifierMixin", module.TabPFNClassifier.create_default_for_version(version))
+    return cast(
+        "ClassifierMixin",
+        module.TabPFNClassifier(
+            model_path=str(checkpoint), device="cpu", random_state=SEED, **params
+        ),
+    )
 
 
 def _adaboost(params: Params) -> ClassifierMixin:
@@ -98,7 +117,7 @@ def get_model(name: str, params: Params | None = None) -> ClassifierMixin:
     """Build a classifier by name, optionally with tuned hyperparameters."""
     params = params or {}
     builders: dict[str, Callable[[Params], ClassifierMixin]] = {
-        "TabPFN-3-Plus": _tabpfn,
+        "TabPFN-3.5": _tabpfn,
         "XGBoost": _xgboost,
         "LightGBM": _lightgbm,
         "LogisticRegression": _logistic,

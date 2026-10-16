@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/doanan293/AKIRiskPredictor/actions/workflows/ci.yml/badge.svg)](https://github.com/doanan293/AKIRiskPredictor/actions/workflows/ci.yml)
 
-Predicts acute kidney injury (AKI) within seven days of ICU admission for adults with diabetic ketoacidosis, from first-day MIMIC-IV data, and compares eight classifiers under patient-level validation.
+Predicts acute kidney injury (AKI) within seven days of ICU admission for adults with diabetic ketoacidosis, from first-day MIMIC-IV data, and compares nine classifiers, including the TabPFN-3.5 foundation model, under patient-level validation.
 
 ## Results
 
@@ -12,6 +12,7 @@ The cohort has 970 labelled ICU stays from 714 patients, 38.9 % with AKI. A hold
 |:-------------------|:--------------------|------:|--------------:|--------------:|
 | MLP                | 0.838 (0.768-0.901) | 0.714 |         0.833 |         0.682 |
 | LogisticRegression | 0.823 (0.751-0.890) | 0.703 |         0.722 |         0.788 |
+| TabPFN-3.5         | 0.819 (0.749-0.886) | 0.667 |         0.648 |         0.812 |
 | SVM                | 0.813 (0.736-0.880) | 0.654 |         0.648 |         0.788 |
 | AdaBoost           | 0.801 (0.728-0.868) | 0.673 |         0.704 |         0.753 |
 | XGBoost            | 0.801 (0.728-0.871) | 0.588 |         0.556 |         0.788 |
@@ -19,7 +20,7 @@ The cohort has 970 labelled ICU stays from 714 patients, 38.9 % with AKI. A hold
 | GaussianNB         | 0.796 (0.722-0.868) | 0.649 |         0.685 |         0.729 |
 | LightGBM           | 0.754 (0.677-0.834) | 0.54  |         0.5   |         0.776 |
 
-All confidence intervals overlap, so the holdout alone cannot rank the models. In 10-fold patient-grouped cross-validation ([results/cv.md](results/cv.md)) SVM (0.805) and logistic regression (0.800) lead, and the MLP is sixth (0.775). Logistic regression is near the top in both and is the simplest to explain, so it is the default model for `aki predict`.
+All confidence intervals overlap, so the holdout alone cannot rank the models. In 10-fold patient-grouped cross-validation ([results/cv.md](results/cv.md)) TabPFN-3.5 leads (0.813), followed by SVM (0.805) and logistic regression (0.800), and the MLP is seventh (0.775). Logistic regression is near the top in both, is the simplest to explain and has no license restriction, so it is the default model for `aki predict`.
 
 ![ROC curves on the holdout](results/roc_holdout.png)
 
@@ -27,7 +28,7 @@ Also generated: [baseline characteristics](results/table_1.md), [feature ranking
 
 ### Compared with the earlier version
 
-An earlier version of this project reported a holdout AUC of 0.859 for TabPFN and 0.839 for logistic regression. Those numbers came from a split by ICU stay, which let stays of the same patient land on both sides, and from imputation, feature selection and tuning fitted on all training data before cross-validation. This version fixes both, so its numbers are lower and more honest. TabPFN is not in the table because its checkpoint is not available on the machine that produced these results. It can be added with `uv sync --extra tabpfn`.
+An earlier version of this project reported a holdout AUC of 0.859 for TabPFN and 0.839 for logistic regression. Those numbers came from a split by ICU stay, which let stays of the same patient land on both sides, and from imputation, feature selection and tuning fitted on all training data before cross-validation. This version fixes both, so its numbers are lower and more honest. The TabPFN row now uses TabPFN-3.5 (September 2026) instead of the earlier TabPFN-3 checkpoint.
 
 ## How it works
 
@@ -60,6 +61,15 @@ uv run aki predict         # one probability per stay in data/sample/test.json
 
 Running `report` on the sample overwrites `results/` with numbers from synthetic data, which mean nothing clinically. Use `git checkout results` to get the real results back.
 
+TabPFN-3.5 is optional. Its weights are released by Prior Labs for non-commercial use only, so they are not in this repository. To include it:
+
+```bash
+uv sync --extra tabpfn
+hf download Prior-Labs/tabpfn_3_5 tabpfn-v3.5-20260909.safetensors --local-dir local-data/tabpfn
+```
+
+Without the extra, `aki` skips TabPFN and runs the other eight models. With the extra but no local weights, the `tabpfn` package downloads them itself. `TABPFN_MODEL_PATH` points to weights stored elsewhere.
+
 Each step also has its own command: `aki prepare`, `aki select-features`, `aki tune`, `aki train`, `aki evaluate`, `aki predict` and `aki synthesize`. Settings live in [configs/default.yaml](configs/default.yaml).
 
 ## Data
@@ -81,4 +91,4 @@ uv run ruff check && uv run ruff format --check && uv run pyrefly check && uv ru
 
 ## License
 
-MIT, see [LICENSE](LICENSE). MIMIC-IV data is subject to the PhysioNet credentialed health data license and is not covered by this license.
+MIT, see [LICENSE](LICENSE). MIMIC-IV data is subject to the PhysioNet credentialed health data license and is not covered by this license. TabPFN-3.5 weights are licensed by Prior Labs GmbH under the TabPFN-3.5 Non-Commercial License and are not covered by this license either.

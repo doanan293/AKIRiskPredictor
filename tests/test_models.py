@@ -18,7 +18,7 @@ def stays() -> pd.DataFrame:
     return load_stays(SAMPLE / "train.json")
 
 
-@pytest.mark.parametrize("name", [n for n in MODEL_NAMES if n != "TabPFN-3-Plus"])
+@pytest.mark.parametrize("name", [n for n in MODEL_NAMES if n != "TabPFN-3.5"])
 def test_every_model_fits_and_predicts(stays: pd.DataFrame, name: str) -> None:
     rows = stays.iloc[:100]
     pipeline = build_pipeline(get_model(name), n_features=8)
@@ -49,3 +49,15 @@ def test_quick_tuning_returns_params_within_a_minute(stays: pd.DataFrame) -> Non
     assert time.perf_counter() - start < 60
     assert set(params) == {"C", "class_weight"}
     assert np.isfinite(params["C"])  # type: ignore[arg-type]
+
+
+def test_tabpfn_fits_when_installed(stays: pd.DataFrame) -> None:
+    pytest.importorskip("tabpfn")
+    from aki_risk_predictor.models import tabpfn_checkpoint
+
+    if tabpfn_checkpoint() is None:
+        pytest.skip("TabPFN-3.5 weights not downloaded")
+    rows = stays.iloc[:100]
+    pipeline = build_pipeline(get_model("TabPFN-3.5"), n_features=8)
+    pipeline.fit(features(rows), rows[LABEL])
+    assert pipeline.predict_proba(features(rows)).shape == (100, 2)

@@ -2,7 +2,7 @@
 output_dir: results
 models_dir: results/models
 models:
-  - TabPFN-3-Plus  # skipped unless installed with `uv sync --extra tabpfn`
+  - TabPFN-3.5  # needs `uv sync --extra tabpfn`, skipped otherwise
   - XGBoost
   - LightGBM
   - LogisticRegression

@@ -4,6 +4,7 @@ Computed on the MIMIC-IV cohort. Only aggregate values are reported. F1, sensiti
 
 | model              | AUC mean (SD) over folds   |    f1 |   sensitivity |   specificity |   threshold |
 |:-------------------|:---------------------------|------:|--------------:|--------------:|------------:|
+| TabPFN-3.5         | 0.813 (0.046)              | 0.693 |         0.65  |         0.856 |       0.472 |
 | SVM                | 0.805 (0.054)              | 0.707 |         0.703 |         0.819 |       0.423 |
 | LogisticRegression | 0.800 (0.055)              | 0.694 |         0.687 |         0.813 |       0.415 |
 | AdaBoost           | 0.792 (0.046)              | 0.671 |         0.721 |         0.728 |       0.362 |
