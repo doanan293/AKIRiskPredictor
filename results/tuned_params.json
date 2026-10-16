@@ -1,0 +1,48 @@
+{
+  "XGBoost": {
+    "n_estimators": 773,
+    "max_depth": 2,
+    "learning_rate": 0.016536643976750174,
+    "subsample": 0.6831809216468459,
+    "colsample_bytree": 0.728034992108518,
+    "scale_pos_weight": 2.638712329973611,
+    "reg_alpha": 6.267062696005991e-07,
+    "reg_lambda": 0.00042472707398058225,
+    "min_child_weight": 6,
+    "gamma": 2.3528990899815284e-08
+  },
+  "LightGBM": {
+    "n_estimators": 512,
+    "num_leaves": 122,
+    "learning_rate": 0.1001303991139125,
+    "subsample": 0.7993292420985183,
+    "subsample_freq": 1,
+    "colsample_bytree": 0.5780093202212182
+  },
+  "LogisticRegression": {
+    "C": 0.0745934328572655,
+    "class_weight": null
+  },
+  "AdaBoost": {
+    "n_estimators": 499,
+    "learning_rate": 0.022856175997064767,
+    "estimator_max_depth": 1
+  },
+  "GaussianNB": {
+    "var_smoothing": 1.7670169402947963e-10
+  },
+  "ComplementNB": {
+    "alpha": 0.0074593432857265485
+  },
+  "MLP": {
+    "hidden_layer_size": "64_32",
+    "alpha": 0.014528246637516038,
+    "learning_rate_init": 7.068974950624602e-05
+  },
+  "SVM": {
+    "C": 14.528246637516036,
+    "kernel": "sigmoid",
+    "class_weight": null,
+    "gamma": 0.0008260808399079611
+  }
+}
