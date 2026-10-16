@@ -1,0 +1,23 @@
+# Data paths default to local-data/ when it exists, otherwise to the synthetic data/sample/.
+output_dir: results
+models_dir: results/models
+models:
+  - TabPFN-3-Plus  # skipped unless installed with `uv sync --extra tabpfn`
+  - XGBoost
+  - LightGBM
+  - LogisticRegression
+  - AdaBoost
+  - GaussianNB
+  - ComplementNB
+  - MLP
+  - SVM
+predict_model: LogisticRegression
+seed: 42
+n_features: 20
+missing_threshold: 0.2
+holdout_size: 0.15
+cv_splits: 10
+tune_cv_splits: 5
+budget: quick
+bootstrap: 1000
+min_cell: 11
